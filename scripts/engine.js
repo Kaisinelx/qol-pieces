@@ -21,19 +21,25 @@ export const engine = {
     return parts.join(" ");
   },
 
-  confirmDialog: async (title, html) => {
-    return Dialog.confirm({ title, content: html });
-  },
+  confirmDialog: async (title, html) => Dialog.confirm({ title, content: html }),
 
-  numberInputDialog: ({ title, label, min = 0, step = 1, default: def = 0 } = {}) =>
+  numberInputDialog: ({
+    title,
+    label,
+    min = 0,
+    step = 1,
+    default: def = 0
+  } = {}) =>
     new Promise((resolve) => {
       const content = `
         <form>
           <div class="form-group">
             <label>${label ?? "Value:"}</label>
-            <input id="qol-number" type="number" value="${def}" min="${min}" step="${step}" style="width:100%;" />
+            <input id="qol-number" type="number" value="${Number(def) || 0}"
+                   min="${Number(min) || 0}" step="${Number(step) || 1}" />
           </div>
-        </form>`;
+        </form>
+      `;
 
       new Dialog({
         title: title ?? "Input",
@@ -55,25 +61,24 @@ export const engine = {
     }),
 
   renderItemCard: (item, { subtitle = "", body = "", footer = "" } = {}) => `
-    <div class="dnd5e chat-card item-card">
-      <header class="card-header flexrow">
-        <img src="${item.img}" title="${item.name}" width="36" height="36">
-        <h3>${item.name}</h3>
-      </header>
-      ${subtitle ? `<div class="card-content"><p><strong>${subtitle}</strong></p></div>` : ""}
-      <div class="card-content">${body}</div>
-      ${footer ? `<footer class="card-footer">${footer}</footer>` : ""}
-    </div>
-  `,
+### ${item.name}
 
-  // Minimal safe default: releases/spawns at holder position.
+${subtitle ? `${subtitle}\n\n` : ""}${body}
+
+${footer ? `${footer}` : ""}
+`,
+
+  // Minimal safe default: release/spawn at holder position.
   // Replace later with real collision/grid search.
   findFreePositionNear: (token) => ({ x: token.document.x, y: token.document.y }),
 
   removeEffectByFlag: async (actor, scope, key) => {
     const effects = actor.effects?.filter((e) => e.getFlag(scope, key)) ?? [];
     if (!effects.length) return;
-    await actor.deleteEmbeddedDocuments("ActiveEffect", effects.map((e) => e.id));
+    await actor.deleteEmbeddedDocuments(
+      "ActiveEffect",
+      effects.map((e) => e.id)
+    );
   },
 
   isMediumOrSmaller: (actor) => {
