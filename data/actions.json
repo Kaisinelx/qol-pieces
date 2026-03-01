@@ -1,0 +1,140 @@
+[
+  {
+    "id": "bag_of_many_beans",
+    "name": "Bag of Many Beans",
+    "tier": "item",
+    "maxLevel": null,
+    "description": "Spends one use of the Bag of Many Beans, rolls on the d8 RollTable, and posts the result to chat. Requires the item and its named RollTable to exist.",
+    "params": {
+      "rangeFt": 0,
+      "radiusFt": null,
+      "duration": null,
+      "targets": 0,
+      "requiresToken": true,
+      "requiresTargets": false,
+      "usesTemplate": false,
+      "usesHooks": false
+    }
+  },
+  {
+    "id": "chrono_casket",
+    "name": "Chrono Casket",
+    "tier": "item",
+    "maxLevel": null,
+    "description": "Captures a dead or unconscious (0 HP) Medium-or-smaller target into the Chrono Casket, removing their token and storing their data on the item. Running again while loaded releases the creature near the holder with a 24-hour cooldown.",
+    "params": {
+      "rangeFt": 5,
+      "radiusFt": null,
+      "duration": "24h",
+      "targets": 1,
+      "requiresToken": true,
+      "requiresTargets": true,
+      "usesTemplate": false,
+      "usesHooks": false
+    }
+  }
+,
+  {
+    "id": "blitz_barrier_awaken",
+    "name": "Blitz Barrier — Awaken Shield",
+    "tier": "item",
+    "maxLevel": null,
+    "description": "Opens a dialog to declare Hit Dice spent (applied manually by the player). Sets shield charges to 1 + HD spent for 1 minute. Posts a half-cover reminder to chat. No automatic HD deduction.",
+    "params": {
+      "rangeFt": 0,
+      "radiusFt": null,
+      "duration": "1min",
+      "targets": 0,
+      "requiresToken": true,
+      "requiresTargets": false,
+      "usesTemplate": false,
+      "usesHooks": false
+    }
+  },
+  {
+    "id": "blitz_barrier_toggle_light",
+    "name": "Blitz Barrier — Toggle Light",
+    "tier": "item",
+    "maxLevel": null,
+    "description": "Toggles the token's light between off and 15ft bright / 30ft dim white light. Posts ignite/extinguish message to chat.",
+    "params": {
+      "rangeFt": 0,
+      "brightFt": 15,
+      "radiusFt": 30,
+      "duration": null,
+      "targets": 0,
+      "requiresToken": true,
+      "requiresTargets": false,
+      "usesTemplate": false,
+      "usesHooks": false
+    }
+  },
+  {
+    "id": "blitz_barrier_blinding_blitz",
+    "name": "Blitz Barrier — Blinding Blitz",
+    "tier": "item",
+    "maxLevel": null,
+    "description": "Spends 1 shield charge, rolls 3d6 radiant damage (halved on passed DC 15 CON save). Posts result to chat. Blinded condition, reaction tracking, and end-of-turn repeat saves are NOT automated — apply manually.",
+    "params": {
+      "rangeFt": null,
+      "radiusFt": null,
+      "duration": "1min",
+      "targets": 1,
+      "requiresToken": true,
+      "requiresTargets": true,
+      "usesTemplate": false,
+      "usesHooks": false
+    }
+  },
+  {
+    "id": "nature_spirit",
+    "name": "Nature Spirits",
+    "tier": "ability",
+    "maxLevel": null,
+    "description": "Circle of the Shepherd: summon a Bear, Hawk, or Unicorn spirit as a tile with a 30ft aura. Applies midi-qol ActiveEffects to allied tokens in range. Move or dismiss with the same button. Requires Druid level 2+. Uses Portal for placement if available, falls back to dnd5e AbilityTemplate.",
+    "params": {
+      "rangeFt": 60,
+      "radiusFt": 30,
+      "duration": "1min",
+      "targets": 0,
+      "requiresToken": true,
+      "requiresTargets": false,
+      "usesTemplate": true,
+      "usesHooks": false
+    }
+  },
+  {
+    "id": "heavenly_harmony",
+    "name": "Heavenly Harmony",
+    "tier": "ability",
+    "maxLevel": null,
+    "description": "Master control for the Heavenly Harmony performance system. Start/switch/end Pieces, make Rhythm Checks (1d20 + CHA vs DC 10+2×nextLevel), and view current piece state. Performance level and state persisted as actor flags. All piece effects applied manually.",
+    "params": {
+      "rangeFt": 0,
+      "radiusFt": null,
+      "duration": null,
+      "targets": 0,
+      "requiresToken": true,
+      "requiresTargets": false,
+      "usesTemplate": false,
+      "usesHooks": false
+    }
+  },
+  {
+    "id": "hope_tracker",
+    "name": "Hope Tracker",
+    "tier": "resource",
+    "maxLevel": null,
+    "description": "Opens a styled dialog showing current Hope orbs. Buttons: Gain 1, Lose 1, Spend 2 (+1d4), Spend 3 (+1d6), Spend 3 (reroll d20). All actions post to chat and re-read live item state. Requires the Hope item to use spent/max tracking mode.",
+    "params": {
+      "rangeFt": 0,
+      "radiusFt": null,
+      "duration": null,
+      "targets": 0,
+      "requiresToken": false,
+      "requiresTargets": false,
+      "usesTemplate": false,
+      "usesHooks": false
+    }
+  }
+]

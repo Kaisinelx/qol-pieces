@@ -1,0 +1,9 @@
+{
+  "id": "qol-pieces",
+  "title": "QoL Pieces",
+  "description": "Macro-heavy items refactored into a Foundry v13 module.",
+  "version": "0.0.1",
+  "authors": [{ "name": "kaisinelx" }],
+  "compatibility": { "minimum": "13", "verified": "13" },
+  "esmodules": ["scripts/main.js"]
+}
