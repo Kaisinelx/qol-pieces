@@ -8,5 +8,5 @@
   "esmodules": ["scripts/main.js"],
   "url": "https://github.com/Kaisinelx/qol-pieces",
   "manifest": "https://github.com/Kaisinelx/qol-pieces/releases/latest/download/module.json",
-  "download": "https://github.com/Kaisinelx/qol-pieces/releases/download/0.1.0/qol-pieces-v0.1.0.zip"
+  "download": "https://github.com/Kaisinelx/qol-pieces/releases/download/0.1.1/qol-pieces-v0.1.1.zip"
 }

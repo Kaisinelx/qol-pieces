@@ -9,6 +9,8 @@ import { run as runBlindingBlitz } from "./actions/blitz_barrier_blinding_blitz.
 import { run as runHope } from "./actions/hope_tracker.js";
 import { run as runHarmony } from "./actions/heavenly_harmony.js";
 import { run as runNatureSpirit } from "./actions/nature_spirit.js";
+import { run as runGuidingMist } from "./actions/harmony_guidingMist.js";
+
 
 const ACTIONS = {
   bag_of_many_beans: runBeans,
@@ -18,7 +20,8 @@ const ACTIONS = {
   blitz_barrier_blinding_blitz: runBlindingBlitz,
   hope_tracker: runHope,
   heavenly_harmony: runHarmony,
-  nature_spirit: runNatureSpirit
+  nature_spirit: runNatureSpirit,
+  harmony_guidingMist: runGuidingMist
 };
 
 function firstControlledToken() {
