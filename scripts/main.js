@@ -47,7 +47,7 @@ Hooks.on("dnd5e.useItem", async (item) => {
 
   const selected = Array.from(game.user.targets ?? []);
   if (!selected.length) {
-    ui.notifications.warn("Silent Scripture: select up to 2 enemy targets before using the curse.");
+    ui.notifications.warn("Target up to 2 enemies first.");
     return;
   }
 
@@ -279,46 +279,83 @@ Hooks.on("dnd5e.preAttackRoll", (item, rollData) => {
   }).render(true);
 });
 
-// River Lantern L3: enemies inside cloud get slowed for 1 round on turn change
-Hooks.on("updateCombat", async (combat, changed) => {
-  if (!("turn" in changed)) return;
+// River Lantern L3: on mist cloud creation, resolve saves and debuff failed enemies
+Hooks.on("createMeasuredTemplate", async (templateDoc) => {
   if (!canvas?.tokens?.placeables?.length) return;
 
+  // Find a River Lantern L3 performer on this scene
   const perfTok = canvas.tokens.placeables.find(t => {
     const h = t.actor?.getFlag(FLAG_SCOPE, FLAG_KEY);
-    return h?.pieceKey === "river_lantern" && h.level >= 3 && !!h.cloudTemplate;
+    return h?.pieceKey === "river_lantern" && h.level >= 3;
   });
   if (!perfTok) return;
 
-  const harmony = perfTok.actor.getFlag(FLAG_SCOPE, FLAG_KEY);
-  if (!harmony) return;
-  const templateDoc = await fromUuid(harmony.cloudTemplate);
-  if (!templateDoc) return;
+  // The guidingMist script stores cloudTemplate uuid immediately after creation.
+  // Yield briefly so the flag write can complete before we read it.
+  await new Promise(resolve => setTimeout(resolve, 150));
 
-  const templateObj = templateDoc.object;
-  const center = templateObj?.center ?? { x: templateDoc.x, y: templateDoc.y };
+  const harmony = perfTok.actor.getFlag(FLAG_SCOPE, FLAG_KEY);
+  if (!harmony?.cloudTemplate) return;
+
+  let storedId;
+  try {
+    storedId = (await fromUuid(harmony.cloudTemplate))?.id;
+  } catch { return; }
+  if (storedId !== templateDoc.id) return;
+
+  const center   = templateDoc.object?.center ?? { x: templateDoc.x, y: templateDoc.y };
   const radiusFt = Number(templateDoc.distance ?? 15);
 
-  for (const tok of canvas.tokens.placeables) {
+  // Calculate save DC: 8 + proficiency + WIS mod
+  const dc = 8
+    + (perfTok.actor.system?.attributes?.prof ?? 2)
+    + (perfTok.actor.system?.abilities?.wis?.mod ?? 0);
+
+  const enemies = canvas.tokens.placeables.filter(t => {
+    if (!t.actor) return false;
+    if (t.document.disposition === 0) return false; // ignore neutrals
+    if (t.document.disposition === perfTok.document.disposition) return false;
+    const distFt = canvas.grid.measureDistance(center, t.center);
+    return distFt <= radiusFt;
+  });
+
+  if (!enemies.length) {
+    ui.notifications.info("Guiding Mist: no enemies in range.");
+    return;
+  }
+
+  for (const tok of enemies) {
     const a = tok.actor;
-    if (!a) continue;
+    let saveFailed = false;
 
-    // only apply to enemies of the performer
-    if (tok.document.disposition === 0) continue; // neutrals ignore
-    if (tok.document.disposition === perfTok.document.disposition) continue;
+    try {
+      const saveRoll = await a.rollAbilitySave("con", { fastForward: true });
+      saveFailed = (saveRoll?.total ?? 0) < dc;
+    } catch {
+      // rollAbilitySave unavailable — remind table to resolve manually
+      ui.notifications.warn(`Guiding Mist: roll CON save (DC ${dc}) for ${tok.name} manually.`);
+      continue;
+    }
 
-    const distFt = canvas.grid.measureDistance(center, tok.center);
-    if (distFt > radiusFt) continue;
+    if (!saveFailed) {
+      ui.notifications.info(`Guiding Mist: ${tok.name} succeeded (DC ${dc}) — unaffected.`);
+      continue;
+    }
 
-    const existing = a.effects.find(e => e.name === "Guiding Mist Slow");
+    // Remove any existing debuff before re-applying
+    const existing = a.effects.find(e => e.name === "Guiding Mist Debuff");
     if (existing) await existing.delete();
 
     await a.createEmbeddedDocuments("ActiveEffect", [{
-      name: "Guiding Mist Slow",
-      icon: "icons/magic/air/fog-gas-smoke-dense-gray.webp",
-      changes: [{ key: "system.attributes.movement.walk", mode: 2, value: "-10" }],
+      name:     "Guiding Mist Debuff",
+      icon:     "icons/magic/air/fog-gas-smoke-dense-gray.webp",
+      changes:  [{ key: "system.attributes.movement.walk", mode: 2, value: "-10" }],
       duration: { rounds: 1 },
-      flags: { [MODULE_ID]: { harmony: true } }
+      flags:    { [MODULE_ID]: { harmony: true } }
     }]);
+
+    ui.notifications.info(
+      `Guiding Mist: ${tok.name} failed save (DC ${dc}) — movement -10 ft for 1 round. Apply attack disadvantage manually.`
+    );
   }
 });
