@@ -1,12 +1,43 @@
 {
   "id": "qol-pieces",
   "title": "QoL Pieces",
-  "description": "Macro-heavy items refactored into a Foundry v13 module.",
-  "version": "0.1.0",
-  "authors": [{ "name": "kaisinelx" }],
-  "compatibility": { "minimum": "13", "verified": "13" },
-  "esmodules": ["scripts/main.js"],
+  "description": "<p>Macro-heavy items refactored into a Foundry v13 module.</p>",
+  "authors": [
+    {
+      "name": "kaisinelx",
+      "flags": {}
+    }
+  ],
   "url": "https://github.com/Kaisinelx/qol-pieces",
+  "flags": {},
+  "media": [],
+  "version": "0.1.2",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "scripts": [],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [],
+  "languages": [],
+  "packs": [],
+  "packFolders": [],
+  "relationships": {
+    "systems": [],
+    "requires": [],
+    "recommends": [],
+    "conflicts": [],
+    "flags": {}
+  },
+  "socket": false,
   "manifest": "https://github.com/Kaisinelx/qol-pieces/releases/latest/download/module.json",
-  "download": "https://github.com/Kaisinelx/qol-pieces/releases/download/0.1.1/qol-pieces-v0.1.1.zip"
+  "download": "https://github.com/Kaisinelx/qol-pieces/releases/download/0.1.2/qol-pieces-v0.1.2.zip",
+  "protected": false,
+  "exclusive": false,
+  "persistentStorage": false,
+  "coreTranslation": false,
+  "library": false,
+  "documentTypes": {}
 }
