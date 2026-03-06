@@ -80,30 +80,32 @@ async function handleSilentScriptureL3Mark(item) {
   }
 
   const validTargets = selected
-  .filter(t => isEnemyToken(sourceTok, t))
-  .slice(0, 2);
+    .filter(t => isEnemyToken(sourceTok, t))
+    .slice(0, 2);
 
-if (!validTargets.length) {
-  ui.notifications.warn("No valid enemy targets selected.");
-  return;
-}
+  if (!validTargets.length) {
+    ui.notifications.warn("No valid enemy targets selected.");
+    return;
+  }
 
-for (const target of validTargets) {
-  new Sequence()
-    .effect()
-    .file("jb2a.condition.curse.01.012.purple")
-    .attachTo(target)
-    .scale(0.6)
-    .fadeIn(200)
-    .fadeOut(900)
-    .duration(1200)
-    .play();
-}
+  if (globalThis.Sequence) {
+    for (const target of validTargets) {
+      new Sequence()
+        .effect()
+        .file("modules/jb2a_patreon/Library/Generic/Conditions/Curse01/ConditionCurse01_012_Purple_600x600.webm")
+        .attachTo(target)
+        .scale(0.6)
+        .fadeIn(200)
+        .fadeOut(900)
+        .duration(1200)
+        .play();
+    }
+  }
 
-await updateHarmony(actor, {
-  markedTargets: validTargets.map(t => t.id),
-  pendingCurse: true
-});
+  await updateHarmony(actor, {
+    markedTargets: validTargets.map(t => t.id),
+    pendingCurse: true
+  });
 
   ui.notifications.info(`Silent Scripture: ${validTargets.length} target(s) marked for your next spell.`);
 }

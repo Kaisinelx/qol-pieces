@@ -15,7 +15,7 @@ export async function run(actor, ctx = {}) {
   if (globalThis.Sequence) {
     new Sequence()
       .effect()
-      .file("jb2a.fog_cloud.02.white")
+      .file("modules/jb2a_patreon/Library/1st_Level/Fog_Cloud/FogCloud_02_Regular_White_800x800.webm")
       .atLocation(doc)
       .scale(1.4)
       .fadeIn(500)

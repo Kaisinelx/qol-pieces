@@ -24,19 +24,17 @@ export async function run(actor, ctx = {}) {
   });
 
   if (globalThis.Sequence) {
-
     if (currentlyOn) {
       // turning OFF → remove aura
       Sequencer.EffectManager.endEffects({
         name: AURA_NAME,
         object: token
       });
-
     } else {
-      // turning ON → create aura loop
+      // turning ON → create persistent aura loop
       new Sequence()
         .effect()
-        .file("jb2a.template_circle.aura.04.outward.004.loop.part01.refraction")
+        .file("modules/jb2a_patreon/Library/Generic/Template/Circle/Aura/Aura004/Aura004Part01_Outward_Loop_004_Refraction_1400x1400.webm")
         .attachTo(token)
         .scale(0.9)
         .name(AURA_NAME)

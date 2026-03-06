@@ -199,7 +199,7 @@ const centerPos = { x: centerX, y: centerY };
 if (globalThis.Sequence) {
   new Sequence()
     .effect()
-    .file("jb2a.magic_signs.circle.02.conjuration.complete.green")
+    .file("modules/jb2a_patreon/Library/Generic/Magic_Signs/ConjurationCircleComplete_02_Regular_Green_800x800.webm")
     .atLocation(centerPos)
     .scale(1.1)
     .fadeIn(300)

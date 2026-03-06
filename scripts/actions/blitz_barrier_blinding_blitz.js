@@ -29,21 +29,21 @@ export async function run(actor, ctx = {}) {
   if (!item) return engine.warn(`Couldn't find "${SHIELD_NAME}" on ${actor.name}.`);
 
   const charges = item.system?.uses?.value ?? 0;
-if (charges < 1) return engine.warn("No shield charges remaining. Awaken it first.");
+  if (charges < 1) return engine.warn("No shield charges remaining. Awaken it first.");
 
-if (globalThis.Sequence) {
-  new Sequence()
-    .effect()
-    .file("jb2a.explosion.08.1200.orange")
-    .atLocation(target)
-    .scale(0.7)
-    .fadeIn(100)
-    .fadeOut(400)
-    .play();
-}
+  if (globalThis.Sequence) {
+    new Sequence()
+      .effect()
+      .file("modules/jb2a_patreon/Library/Generic/Explosion/Explosion_05_Regular_Orange_1200x1200.webm")
+      .atLocation(target)
+      .scale(0.7)
+      .fadeIn(100)
+      .fadeOut(400)
+      .play();
+  }
 
-// Damage roll — posted to chat separately so dice are visible
-const dmgRoll = await (new Roll(DAMAGE_FORMULA)).evaluate();
+  // Damage roll — posted to chat separately so dice are visible
+  const dmgRoll = await (new Roll(DAMAGE_FORMULA)).evaluate();
   await dmgRoll.toMessage({ flavor: "Blinding Blitz — Radiant Damage (3d6)" });
 
   // CON save — dnd5e method; guarded above

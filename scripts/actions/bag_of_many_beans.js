@@ -20,7 +20,7 @@ export async function run(actor, ctx = {}) {
   if (globalThis.Sequence) {
     new Sequence()
       .effect()
-      .file("jb2a.cast_generic.earth.01.browngreen.0")
+      .file("modules/JB2A_DnD5e/Library/Generic/Cast/CastEarth01_01_Regular_BrownGreen_600x600.webm")
       .atLocation(token)
       .scale(0.8)
       .fadeIn(150)
