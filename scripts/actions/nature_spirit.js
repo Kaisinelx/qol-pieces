@@ -177,24 +177,35 @@ async function summonSpirit(actor, token, spiritType, SPIRITS) {
   const gridSize  = canvas.grid.size;
   const tileX     = Math.round(Math.floor(Number(location.x) / gridSize) * gridSize);
   const tileY     = Math.round(Math.floor(Number(location.y) / gridSize) * gridSize);
-
+f
   // FIX #3: Tile flags use FLAG_SCOPE, not "world"
   const tiles = await canvas.scene.createEmbeddedDocuments("Tile", [{
-    texture: { src: spirit.icon },
-    x:       tileX,
-    y:       tileY,
-    width:   Math.round(gridSize * 2),
-    height:  Math.round(gridSize * 2),
-    alpha:   0.7,
-    flags:   { [FLAG_SCOPE]: { natureSpirit: true, spiritType, ownerId: actor.id } },
-  }]);
+  texture: { src: spirit.icon },
+  x:       tileX,
+  y:       tileY,
+  width:   Math.round(gridSize * 2),
+  height:  Math.round(gridSize * 2),
+  alpha:   0.7,
+  flags:   { [FLAG_SCOPE]: { natureSpirit: true, spiritType, ownerId: actor.id } },
+}]);
 
-  if (!tiles?.length) return engine.error("Failed to create spirit tile.");
+if (!tiles?.length) return engine.error("Failed to create spirit tile.");
 
-  const tileId    = tiles[0].id;
-  const centerX   = tileX + gridSize;
-  const centerY   = tileY + gridSize;
-  const centerPos = { x: centerX, y: centerY };
+const tileId    = tiles[0].id;
+const centerX   = tileX + gridSize;
+const centerY   = tileY + gridSize;
+const centerPos = { x: centerX, y: centerY };
+
+if (globalThis.Sequence) {
+  new Sequence()
+    .effect()
+    .file("jb2a.magic_signs.circle.02.conjuration.complete.green")
+    .atLocation(centerPos)
+    .scale(1.1)
+    .fadeIn(300)
+    .fadeOut(900)
+    .play();
+}
 
   // FIX #1: endRound stored inside the same flag object — no dot-notation split
   const endRound = game.combat?.active ? game.combat.round + 10 : null;

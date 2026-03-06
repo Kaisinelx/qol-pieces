@@ -68,8 +68,21 @@ export async function run(actor, ctx) {
     }
     tokenData.actorId = storedActor.id;
 
-    await canvas.scene.createEmbeddedDocuments("Token", [tokenData]);
-    await engine.removeEffectByFlag(storedActor, FLAG_SCOPE, "chronoCasketGentleRepose");
+    const created = await canvas.scene.createEmbeddedDocuments("Token", [tokenData]);
+const releasedToken = canvas.tokens.get(created[0]?.id);
+
+if (globalThis.Sequence && releasedToken) {
+  await new Sequence()
+    .effect()
+    .file("jb2a.butterflies.outward.01.bluepurple")
+    .atLocation(releasedToken)
+    .scale(0.9)
+    .fadeIn(100)
+    .fadeOut(500)
+    .play();
+}
+
+await engine.removeEffectByFlag(storedActor, FLAG_SCOPE, "chronoCasketGentleRepose");
 
     await casketItem.setFlag(FLAG_SCOPE, FLAG_KEY, {
       storedActorUuid:  null,
@@ -114,7 +127,24 @@ export async function run(actor, ctx) {
     flagKey:         "chronoCasketGentleRepose",
     durationSeconds: DAY,
   });
+  
+if (globalThis.Sequence) {
+  await new Sequence()
+    .effect()
+    .file("jb2a.butterflies.complete.01.bluepurple")
+    .atLocation(targetToken)
+    .scale(0.8)
+    .fadeIn(150)
+    .duration(500)
 
+    .effect()
+    .file("jb2a.butterflies.inward_burst.01.bluepurple")
+    .atLocation(targetToken)
+    .scale(0.9)
+    .waitUntilFinished(-250)
+
+    .play();
+}
   await targetToken.document.delete();
 
   await casketItem.setFlag(FLAG_SCOPE, FLAG_KEY, {

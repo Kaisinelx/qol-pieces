@@ -14,21 +14,49 @@ Hooks.once("ready", () => {
   globalThis.qolPieces = { dispatch, run: dispatchFromUi };
 
   const HAS_MIDI = game.modules.get("midi-qol")?.active;
-
   if (HAS_MIDI) {
     console.log("QoL Pieces | Midi-QOL detected");
   }
 });
 
 // ─────────────────────────────────────────────
-// Harmony automation hooks
-// ─────────────────────────────────────────────
-// ─────────────────────────────────────────────
-// Silent Scripture automation
+// Helpers
 // ─────────────────────────────────────────────
 
-// L3 part 1: use bonus action item to mark up to 2 enemies
-Hooks.on("dnd5e.useItem", async (item) => {
+function getHarmony(actor) {
+  return actor?.getFlag(FLAG_SCOPE, FLAG_KEY) ?? null;
+}
+
+function getTokenByActor(actor) {
+  return canvas.tokens.placeables.find(t => t.actor?.id === actor?.id) ?? null;
+}
+
+function isEnemyToken(sourceTok, targetTok) {
+  if (!sourceTok || !targetTok) return false;
+  if (targetTok.document.disposition === 0) return false;
+  return sourceTok.document.disposition !== targetTok.document.disposition;
+}
+
+async function updateHarmony(actor, patch) {
+  const current = actor.getFlag(FLAG_SCOPE, FLAG_KEY) ?? {};
+  await actor.setFlag(FLAG_SCOPE, FLAG_KEY, { ...current, ...patch });
+}
+
+async function clearSilentScriptureCurse(actor) {
+  const current = actor.getFlag(FLAG_SCOPE, FLAG_KEY) ?? {};
+  await actor.setFlag(FLAG_SCOPE, FLAG_KEY, {
+    ...current,
+    markedTargets: [],
+    pendingCurse: false
+  });
+}
+
+// ─────────────────────────────────────────────
+// Handler functions
+// ─────────────────────────────────────────────
+
+// Silent Scripture L3 part 1: use bonus action item to mark up to 2 enemies
+async function handleSilentScriptureL3Mark(item) {
   if (!item) return;
 
   const actor = item.actor;
@@ -52,24 +80,36 @@ Hooks.on("dnd5e.useItem", async (item) => {
   }
 
   const validTargets = selected
-    .filter(t => isEnemyToken(sourceTok, t))
-    .slice(0, 2);
+  .filter(t => isEnemyToken(sourceTok, t))
+  .slice(0, 2);
 
-  if (!validTargets.length) {
-    ui.notifications.warn("No valid enemy targets selected.");
-    return;
-  }
+if (!validTargets.length) {
+  ui.notifications.warn("No valid enemy targets selected.");
+  return;
+}
 
-  await updateHarmony(actor, {
-    markedTargets: validTargets.map(t => t.id),
-    pendingCurse: true
-  });
+for (const target of validTargets) {
+  new Sequence()
+    .effect()
+    .file("jb2a.condition.curse.01.012.purple")
+    .attachTo(target)
+    .scale(0.6)
+    .fadeIn(200)
+    .fadeOut(900)
+    .duration(1200)
+    .play();
+}
 
-  ui.notifications.info(`Silent Scripture: ${validTargets.length} target(s) marked for your next spell.`);
+await updateHarmony(actor, {
+  markedTargets: validTargets.map(t => t.id),
+  pendingCurse: true
 });
 
-// L3 part 2: next spell fires a reminder, then clears the curse state immediately
-Hooks.on("dnd5e.useItem", async (item) => {
+  ui.notifications.info(`Silent Scripture: ${validTargets.length} target(s) marked for your next spell.`);
+}
+
+// Silent Scripture L3 part 2: next spell fires a reminder, then clears curse state
+async function handleSilentScriptureL3Reminder(item) {
   if (!item) return;
 
   const actor = item.actor;
@@ -95,10 +135,10 @@ Hooks.on("dnd5e.useItem", async (item) => {
   );
 
   await clearSilentScriptureCurse(actor);
-});
+}
 
-// L1: Reaction — add 1d4 to ally save within 30 ft
-Hooks.on("dnd5e.preRollAbilitySave", (savingActor, rollData) => {
+// Silent Scripture L1: reaction — add 1d4 to ally save within 30 ft
+function handleSilentScriptureL1Save(savingActor, rollData) {
   if (!savingActor) return;
 
   const targetTok = canvas.tokens.placeables.find(t => t.actor?.id === savingActor.id);
@@ -132,10 +172,10 @@ Hooks.on("dnd5e.preRollAbilitySave", (savingActor, rollData) => {
     },
     default: "yes"
   }).render(true);
-});
+}
 
-// L2: After casting a spell, move up to 10 ft without opportunity attacks
-Hooks.on("dnd5e.useItem", async (item) => {
+// Silent Scripture L2: after casting a spell, move up to 10 ft
+async function handleSilentScriptureL2Reposition(item) {
   if (!item) return;
 
   const actor = item.actor;
@@ -191,38 +231,10 @@ Hooks.on("dnd5e.useItem", async (item) => {
     ])),
     default: "stay"
   }).render(true);
-});
-
-function getHarmony(actor) {
-  return actor?.getFlag(FLAG_SCOPE, FLAG_KEY) ?? null;
-}
-
-function getTokenByActor(actor) {
-  return canvas.tokens.placeables.find(t => t.actor?.id === actor?.id) ?? null;
-}
-
-function isEnemyToken(sourceTok, targetTok) {
-  if (!sourceTok || !targetTok) return false;
-  if (targetTok.document.disposition === 0) return false;
-  return sourceTok.document.disposition !== targetTok.document.disposition;
-}
-
-async function updateHarmony(actor, patch) {
-  const current = actor.getFlag(FLAG_SCOPE, FLAG_KEY) ?? {};
-  await actor.setFlag(FLAG_SCOPE, FLAG_KEY, { ...current, ...patch });
-}
-
-async function clearSilentScriptureCurse(actor) {
-  const current = actor.getFlag(FLAG_SCOPE, FLAG_KEY) ?? {};
-  await actor.setFlag(FLAG_SCOPE, FLAG_KEY, {
-    ...current,
-    markedTargets: [],
-    pendingCurse: false
-  });
 }
 
 // River Lantern L1: allies within 15ft get +1 to saves
-Hooks.on("dnd5e.preRollAbilitySave", (savingActor, rollData) => {
+function handleRiverLanternL1Save(savingActor, rollData) {
   const perfTok = canvas.tokens.placeables.find(t => {
     const h = t.actor?.getFlag(FLAG_SCOPE, FLAG_KEY);
     return h?.pieceKey === "river_lantern" && h.level >= 1;
@@ -240,10 +252,10 @@ Hooks.on("dnd5e.preRollAbilitySave", (savingActor, rollData) => {
 
   rollData.parts = rollData.parts ?? [];
   rollData.parts.push("+1");
-});
+}
 
 // River Lantern L2: enemy attacks within 30ft take -1d4
-Hooks.on("dnd5e.preAttackRoll", (item, rollData) => {
+function handleRiverLanternL2Attack(item, rollData) {
   const attacker = item?.actor;
   if (!attacker) return;
 
@@ -277,10 +289,10 @@ Hooks.on("dnd5e.preAttackRoll", (item, rollData) => {
     },
     default: "yes"
   }).render(true);
-});
+}
 
 // River Lantern L3: on mist cloud creation, resolve saves and debuff failed enemies
-Hooks.on("createMeasuredTemplate", async (templateDoc) => {
+async function handleRiverLanternL3Template(templateDoc) {
   if (!canvas?.tokens?.placeables?.length) return;
 
   // Find a River Lantern L3 performer on this scene
@@ -358,4 +370,74 @@ Hooks.on("createMeasuredTemplate", async (templateDoc) => {
       `Guiding Mist: ${tok.name} failed save (DC ${dc}) — movement -10 ft for 1 round. Apply attack disadvantage manually.`
     );
   }
+}
+
+// ─────────────────────────────────────────────
+// Hook registry
+// ─────────────────────────────────────────────
+
+const harmonyHooks = {
+  useItem:                [],
+  preRollAbilitySave:     [],
+  preAttackRoll:          [],
+  createMeasuredTemplate: []
+};
+
+// ─────────────────────────────────────────────
+// Dispatch hooks (one per event, error-isolated)
+// ─────────────────────────────────────────────
+
+Hooks.on("dnd5e.useItem", async (...args) => {
+  for (const fn of harmonyHooks.useItem) {
+    try {
+      await fn(...args);
+    } catch (err) {
+      console.error("qol-pieces useItem handler failed:", fn.name, err);
+    }
+  }
 });
+
+Hooks.on("dnd5e.preRollAbilitySave", async (...args) => {
+  for (const fn of harmonyHooks.preRollAbilitySave) {
+    try {
+      await fn(...args);
+    } catch (err) {
+      console.error("qol-pieces save handler failed:", fn.name, err);
+    }
+  }
+});
+
+Hooks.on("dnd5e.preAttackRoll", async (...args) => {
+  for (const fn of harmonyHooks.preAttackRoll) {
+    try {
+      await fn(...args);
+    } catch (err) {
+      console.error("qol-pieces attack handler failed:", fn.name, err);
+    }
+  }
+});
+
+Hooks.on("createMeasuredTemplate", async (...args) => {
+  for (const fn of harmonyHooks.createMeasuredTemplate) {
+    try {
+      await fn(...args);
+    } catch (err) {
+      console.error("qol-pieces template handler failed:", fn.name, err);
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+// Handler registration
+// ─────────────────────────────────────────────
+
+harmonyHooks.useItem.push(handleSilentScriptureL3Mark);
+harmonyHooks.useItem.push(handleSilentScriptureL3Reminder);
+harmonyHooks.useItem.push(handleSilentScriptureL2Reposition);
+
+harmonyHooks.preRollAbilitySave.push(handleSilentScriptureL1Save);
+harmonyHooks.preRollAbilitySave.push(handleRiverLanternL1Save);
+
+harmonyHooks.preAttackRoll.push(handleRiverLanternL2Attack);
+
+harmonyHooks.createMeasuredTemplate.push(handleRiverLanternL3Template);

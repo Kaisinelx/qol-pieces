@@ -17,6 +17,17 @@ export async function run(actor, ctx = {}) {
 
   await item.update({ "system.uses.value": current - 1 });
 
+  if (globalThis.Sequence) {
+    new Sequence()
+      .effect()
+      .file("jb2a.cast_generic.earth.01.browngreen.0")
+      .atLocation(token)
+      .scale(0.8)
+      .fadeIn(150)
+      .fadeOut(500)
+      .play();
+  }
+
   const table = game.tables.getName(TABLE_NAME);
   if (!table) return engine.error(`RollTable "${TABLE_NAME}" not found.`);
 
